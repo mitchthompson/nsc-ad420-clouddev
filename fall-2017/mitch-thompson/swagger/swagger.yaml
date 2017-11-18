@@ -1,315 +1,276 @@
 swagger: '2.0'
 info:
   version: '1.0'
-  title: Tasklist
+  title: Task list API for AD 420 Cloud Computing class
   termsOfService: 'http://swagger.io/terms/'
   contact:
-    email: dev@example.com
+    name: Mitch Thompson
+    email: thomitchell@gmail.com
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-tags:
-  - name: task
-    description: a task
-    externalDocs:
-      description: Find out more about task
-      url: 'http://swagger.io'
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about user
-      url: 'http://swagger.io'
 schemes:
   - http
 paths:
-  /task:
+  /users:
+    get:
+        summary: Get all users
+        description: Returns all users
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: Success
+            schema: 
+              type: array
+              items:
+                $ref: '#/definitions/User'
     post:
-      tags:
-        - task
-      summary: Add a new task
-      description: ''
-      operationId: addTask
+        summary: Add user
+        description: Adds a user
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        parameters:
+          - in: body
+            name: newUser
+            description: User to be added
+            required: true
+            schema:
+              $ref: '#/definitions/User'
+        responses:
+          '200':
+            description: Success
+            schema:
+              type: integer
+          '405':
+            description: Invalid input
+  '/users/{userID}':
+    get:
+        summary: Get user by user id
+        description: Returns user
+        produces:
+          - application/json
+        parameters:
+          - name: userID
+            in: path
+            description: User ID
+            required: true
+            type: integer
+            format: int32
+        responses:
+          '200':
+            description: Success
+            schema:
+              $ref: '#/definitions/User'
+          '405':
+            description: Invalid input
+          '404':
+            description: User id not found
+    put:
+        summary: Update user by user ID
+        description: Updates user
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        parameters:
+          - in: path
+            name: userID
+            description: User ID
+            required: true
+            type: integer
+            format: int32
+          - in: body
+            name: user
+            description: User
+            required: true
+            schema:
+              $ref: '#/definitions/User'
+        responses:
+          '200':
+            description: Success
+          '404':
+            description: User not found
+          '405':
+            description: Invalid input
+    delete:
+        summary: Delete a user by user ID
+        description: Deletes user
+        parameters:
+          - in: path
+            name: userID
+            required: true
+            type: integer
+            format: int32
+        responses:
+          200:
+            description: Success
+          404:
+            description: User not found
+  '/users/{userID}/tasks':
+    get:
+        summary: Get tasks for user
+        description: Gets all tasks for user by user ID
+        produces:
+          - application/json
+        parameters:
+          - in: path
+            name: userID
+            description: User ID 
+            required: true
+            type: integer
+            format: int34
+        responses:
+          '200':
+            description: Success
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Task'
+          '404':
+            description: User not found
+    post:
+      summary: Add a task for user
+      description: Adds a task for user by user ID 
       consumes:
         - application/json
-      produces:
-        - application/json
       parameters:
+        - in: path 
+          name: userID
+          description: User ID 
+          required: true
+          type: integer
+          format: int32
         - in: body
-          name: body
-          description: Task object to be added
+          name: tasks
+          description: new task to add
           required: true
           schema:
-            $ref: '#/definitions/Task'
+            items:
+              $ref: '#/definitions/Task'
       responses:
+        '200':
+          description: Success
+        '404':
+          description: User not found
         '405':
           description: Invalid input
+  '/users/{userID}/tasks/{taskID}':
+    get:
+        summary: Gets task for user
+        description: Gets a task for user by user ID & task ID
+        produces:
+          - application/json
+        parameters:
+          - in: path
+            name: userID
+            description: User ID 
+            required: true
+            type: integer
+            format: int34
+          - in: path
+            name: taskID
+            description: Task ID 
+            required: true
+            type: integer
+            format: int34
+        responses:
+          '200':
+            description: Success
+            schema:
+              items:
+                $ref: '#/definitions/Task'
+          '404':
+            description: User or task not found
     put:
-      tags:
-        - task
-      summary: Update existing task
-      description: ''
-      operationId: updateTask
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: Task that needs to be updated
-          required: true
-          schema:
-            $ref: '#/definitions/Task'
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Task not found
-        '405':
-          description: Validation exception
-  /tasks:
-    get:
-      tags:
-        - task
-      summary: Get all tasks
-      description: Returns list of tasks
-      operationId: getAllTasksInList
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Successful get
-  '/task/{taskId}':
-    get:
-      tags:
-        - task
-      summary: Find task by ID
-      description: Returns a task
-      operationId: getTaskById
-      produces:
-        - application/json
-      parameters:
-        - name: taskId
-          in: path
-          description: ID of task to return
-          required: true
-          type: integer
-          format: int64
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/Task'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Task not found
-    post:
-      tags:
-        - task
-      summary: Updates a task in the list
-      description: ''
-      operationId: updateTaskInList
-      produces:
-        - application/json
-      parameters:
-        - name: taskId
-          in: path
-          description: ID of task to be updated
-          required: true
-          type: integer
-          format: int64
-      responses:
-        '405':
-          description: Invalid input
+        summary: Update a task
+        description: Updates a task by user ID and task ID
+        consumes:
+          - application/json
+        parameters:
+          - in: path
+            name: userID
+            description: User ID 
+            required: true
+            type: integer
+            format: int34
+          - in: path
+            name: taskID
+            description: Task ID 
+            required: true
+            type: integer
+            format: int34
+          - in: body
+            name: task
+            description: Updated task object
+            required: true
+            schema:
+              items:
+                $ref: '#/definitions/Task'
+        responses:
+          '200':
+            description: Success
+          '404':
+            description: User or task not found
+          '405':
+            description: Invalid input
     delete:
-      tags:
-        - task
-      summary: Deletes a task
-      description: ''
-      operationId: deleteTask
-      produces:
-        - application/json
-      parameters:
-        - name: api_key
-          in: header
-          required: false
-          type: string
-        - name: taskId
-          in: path
-          description: task id to delete
-          required: true
-          type: integer
-          format: int64
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: task not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: Add user.
-      operationId: createUser
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          description: Created user object
-          required: true
-          schema:
-            $ref: '#/definitions/User'
-      responses:
-        default:
-          description: successful operation
-  '/user/{username}':
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ''
-      operationId: getUserByName
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: path
-          description: The name of the user.
-          required: true
-          type: string
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/User'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-    put:
-      tags:
-        - user
-      summary: Updated user
-      description: Update user.
-      operationId: updateUser
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: path
-          description: Username that need to be updated
-          required: true
-          type: string
-        - in: body
-          name: body
-          description: Updated user
-          required: true
-          schema:
-            $ref: '#/definitions/User'
-      responses:
-        '400':
-          description: Invalid user supplied
-        '404':
-          description: User not found
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: Delete a user.
-      operationId: deleteUser
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: path
-          description: Username that needs to be deleted
-          required: true
-          type: string
-      responses:
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-  '/users/{id}/tasks':
-    get:
-      tags:
-        - user
-      summary: Get user by ID
-      description: ''
-      operationId: getUserTasksById
-      produces:
-        - application/json
-      parameters:
-        - name: id
-          in: path
-          description: The user id the user.
-          required: true
-          type: integer
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/Task'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-  '/users/{userId}/tasks/{taskId}':
-    get:
-      tags:
-        - user
-      summary: Get task by id from user by ID
-      description: ''
-      operationId: getTaskByIDUserByName
-      produces:
-        - application/json
-      parameters:
-        - name: userId
-          in: path
-          description: The user ID and Task ID.
-          required: true
-          type: integer
-        - name: taskId
-          in: path
-          type: integer
-          required: true
-      responses:
-        '200':
-          description: successful operation
-          schema:
-            $ref: '#/definitions/User'
-        '400':
-          description: Invalid username or task Id supplied
-        '404':
-          description: User not found
+        summary: Delete a task
+        description: Deletes task by used ID and task ID
+        parameters:
+          - in: path
+            name: userID
+            required: true
+            type: integer
+            format: int32
+          - in: path
+            name: taskID
+            required: true
+            type: integer
+            format: int32
+        responses:
+          200:
+            description: Success
+          404:
+            description: User not found    
 definitions:
   User:
     type: object
     properties:
       id:
         type: integer
-        format: int64
-      username:
+        format: int32
+      firstname:
+        type: string
+      lastname:
         type: string
       tasks:
         type: array
         items:
-          $ref: '#/definitions/Task'
-    xml:
-      name: User
+          type: integer
+          format: int32
   Task:
     type: object
-    required:
-      - description
     properties:
       id:
-        type: integer
-        format: int64
-      description:
-        type: string
-        example: thing to do
-    xml:
-      name: Task
+        type: "integer"
+        format: "int64"
+      title:
+        type: "string"
+      duedate:
+        type: "integer"
+        format: "int32"
+      status:
+        type: "string"
+        enum:
+          - "Incomplete"
+          - "Complete"
+          - "Overdue"
+      userid:
+        type: "integer"
+        format: "int32"
+      taskid:
+        type: "integer"
+        format: "int32"
